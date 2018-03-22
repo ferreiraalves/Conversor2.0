@@ -72,8 +72,7 @@ public class S3Servicelet extends HttpServlet {
 //		System.out.println(uploadFile);
 
 		URL signed = null;
-		
-		StringWriter sr = new StringWriter();
+	
 		PrintWriter out = response.getWriter();
 		AmazonS3 s3 = new AmazonS3Client(new ProfileCredentialsProvider());
 		
@@ -82,12 +81,12 @@ public class S3Servicelet extends HttpServlet {
             File file = new File(uploadFileName);
 //            System.out.println("teste");
             
-            out.println("<html>");
-    		out.println("<body>");
-    		out.println("Request realizado com sucesso");
-    		out.println("Loading...");
-    		out.println("</body>");
-    		out.println("</html>");
+//          out.println("<html>");
+//    		out.println("<body>");
+//    		out.println("Request realizado com sucesso");
+//    		out.println("Loading...");
+//    		out.println("</body>");
+//    		out.println("</html>");
     		
     		out.flush();
             
@@ -144,7 +143,9 @@ public class S3Servicelet extends HttpServlet {
         
 		out.println("<html>");
 		out.println("<body>");
-		out.println("<iframe src=\"" + signed.toString() + "\" style=\"border:none\"></iframe>");
+        out.println("<video width=\"320\" height=\"240\" controls>");
+        out.println("<source src=\""+ signed + "\" type=\"video/mp4\">") ;
+        out.println("</video>"); 
 		out.println("</body>");
 		out.println("</html>");
 		
