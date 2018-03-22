@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -55,9 +56,9 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 @WebServlet("/s3")
 public class S3Servicelet extends HttpServlet {
 	private String  bucketName    = "bucketconversorsamba";
-	private String sourceKeyName  = "videoteste2.m4v";
-	private String destKeyName    = "videoteste2.mp4";	
-	private String uploadFileName = "C:\\Users\\ferre\\Downloads\\testvideo.m4v";
+	private String sourceKeyName  = "videosamba.dv";
+	private String destKeyName    = "videosamba.mp4";	
+	private String uploadFileName = "C:\\Users\\lsi\\Downloads\\testvideo.m4v";
 	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -72,7 +73,7 @@ public class S3Servicelet extends HttpServlet {
 
 		URL signed = null;
 		
-		
+		StringWriter sr = new StringWriter();
 		PrintWriter out = response.getWriter();
 		AmazonS3 s3 = new AmazonS3Client(new ProfileCredentialsProvider());
 		
@@ -80,22 +81,34 @@ public class S3Servicelet extends HttpServlet {
             System.out.println("Uploading a new object to S3 from a file\n");
             File file = new File(uploadFileName);
 //            System.out.println("teste");
+            
+            out.println("<html>");
+    		out.println("<body>");
+    		out.println("Request realizado com sucesso");
+    		out.println("Loading...");
+    		out.println("</body>");
+    		out.println("</html>");
+    		
+    		out.flush();
+            
             s3.putObject(new PutObjectRequest(bucketName, sourceKeyName, file));
             
-            java.util.Date expiration = new java.util.Date();
-            long msec = expiration.getTime();
-            msec += 1000 * 60 * 60; // 1 hour.
-            expiration.setTime(msec);
-         
-            GeneratePresignedUrlRequest generatePresignedUrlRequest = 
-                    new GeneratePresignedUrlRequest(bucketName, destKeyName);
-            generatePresignedUrlRequest.setMethod(HttpMethod.GET); // Default.
-            generatePresignedUrlRequest.setExpiration(expiration);
+//            java.util.Date expiration = new java.util.Date();
+//            long msec = expiration.getTime();
+//            msec += 1000 * 60 * 60; // 1 hour.
+//            expiration.setTime(msec);
+//         
+//            GeneratePresignedUrlRequest generatePresignedUrlRequest = 
+//                    new GeneratePresignedUrlRequest(bucketName, destKeyName);
+//            generatePresignedUrlRequest.setMethod(HttpMethod.GET); // Default.
+//            generatePresignedUrlRequest.setExpiration(expiration);
                    
-            signed = s3.generatePresignedUrl(generatePresignedUrlRequest);
+            
             
             String get = "s3://" + bucketName + "/" + sourceKeyName,
             	   put = "s3://" + bucketName + "/" + destKeyName;
+            
+            System.out.println("S3 DONE");
             
             zencoderPost(get, put);
 
@@ -118,42 +131,63 @@ public class S3Servicelet extends HttpServlet {
             System.out.println("Error Message: " + ace.getMessage());
         }
         
+        java.util.Date expiration = new java.util.Date();
+        long msec = expiration.getTime();
+        msec += 1000 * 60 * 60; // 1 hour.
+        expiration.setTime(msec);
+     
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = 
+                new GeneratePresignedUrlRequest(bucketName, destKeyName);
+        generatePresignedUrlRequest.setMethod(HttpMethod.GET); // Default.
+        generatePresignedUrlRequest.setExpiration(expiration);
+        signed = s3.generatePresignedUrl(generatePresignedUrlRequest);
         
-		
 		out.println("<html>");
 		out.println("<body>");
-		out.println("Request realizado com sucesso5");
-		
 		out.println("<iframe src=\"" + signed.toString() + "\" style=\"border:none\"></iframe>");
 		out.println("</body>");
 		out.println("</html>");
 		
-		
+		out.close();
 		
 	}
 	
 	public void checkProgress(String id) throws ClientProtocolException, IOException {
 		HttpClient httpclient = HttpClients.createDefault();
 		HttpGet httpput = new HttpGet("https://app.zencoder.com/api/v2/jobs/" + id +  "/progress");
+		//HttpGet httpput = new HttpGet("https://app.zencoder.com/api/v2/jobs/" + "466012898" +  "/progress");
 		httpput.setHeader("Zencoder-Api-Key", "8c7050a93023870d3a3419056c6e00bc");
 	    httpput.setHeader("Accept", "application/json");
 	    httpput.setHeader("Content-type", "application/json");
 	    
-
+	    String state = "";
 //	    GET /api/v2/jobs/465971066/progress HTTP/1.1
 //	    Accept: application/json
 //	    Content-Type: application/json
 //	    Zencoder-Api-Key: 8c7050a93023870d3a3419056c6e00bc
-	    
-		HttpResponse response = httpclient.execute(httpput);
-		HttpEntity aux = response.getEntity();
-	    
-		String responseString = EntityUtils.toString(aux, "UTF-8");
-		System.out.println(responseString);
-		
-		JSONObject jsonObj = new JSONObject(responseString);
-		String state = jsonObj.get("state").toString();
-		System.out.println(state);
+	    while (!state.equals("finished")) {
+			HttpResponse response = httpclient.execute(httpput);
+			HttpEntity aux = response.getEntity();
+		    
+			String responseString = EntityUtils.toString(aux, "UTF-8");
+			System.out.println(responseString);
+			
+			JSONObject jsonObj = new JSONObject(responseString);
+			state = jsonObj.get("state").toString();
+			System.out.println(state);
+	    	try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+	    }
+	    System.out.println("JOBS DONE");
+	    try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	    System.out.println("Final countdown");
 	}
 	
 	
