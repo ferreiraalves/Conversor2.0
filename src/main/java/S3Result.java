@@ -9,9 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.amazonaws.HttpMethod;
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -24,7 +26,10 @@ public class S3Result extends HttpServlet {
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		PrintWriter out = response.getWriter();
-		AmazonS3 s3 = new AmazonS3Client(new ProfileCredentialsProvider());
+		//AmazonS3 s3 = new AmazonS3Client(new ProfileCredentialsProvider());
+		AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+                .withCredentials(new EnvironmentVariableCredentialsProvider())
+                .build();
         
         ObjectListing listing = s3.listObjects(new ListObjectsRequest()
                 .withBucketName(bucketName));
