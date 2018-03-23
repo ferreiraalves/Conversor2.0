@@ -136,7 +136,7 @@ public class S3Servicelet extends HttpServlet {
             
             System.out.println("S3 DONE");
             
-            zencoderPost(get, put);
+            zencoderPost(get, put, out);
 
          } catch (AmazonServiceException ase) {
             System.out.println("Caught an AmazonServiceException, which " +
@@ -190,7 +190,7 @@ public class S3Servicelet extends HttpServlet {
 		
 	}
 	
-	public void checkProgress(String id) throws ClientProtocolException, IOException {
+	public void checkProgress(String id, PrintWriter out ) throws ClientProtocolException, IOException {
 		HttpClient httpclient = HttpClients.createDefault();
 		HttpGet httpput = new HttpGet("https://app.zencoder.com/api/v2/jobs/" + id +  "/progress");
 		//HttpGet httpput = new HttpGet("https://app.zencoder.com/api/v2/jobs/" + "466012898" +  "/progress");
@@ -215,6 +215,8 @@ public class S3Servicelet extends HttpServlet {
 			System.out.println(state);
 	    	try {
 				Thread.sleep(2000);
+				out.println("<span />");
+				out.flush();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -229,7 +231,7 @@ public class S3Servicelet extends HttpServlet {
 	}
 	
 	
-	public void zencoderPost(String getURL, String putURL) throws ClientProtocolException, IOException {
+	public void zencoderPost(String getURL, String putURL, PrintWriter out) throws ClientProtocolException, IOException {
 		HttpClient httpclient = HttpClients.createDefault();
 		HttpPost httppost = new HttpPost("https://app.zencoder.com/api/v2/jobs");
 		
@@ -261,7 +263,7 @@ public class S3Servicelet extends HttpServlet {
 		String id = jsonObj.get("id").toString();
 		System.out.println(id);
 		/*HttpEntity entity = response.getEntity();*/
-		checkProgress(id);		
+		checkProgress(id, out);		
 		
 	}
 	
