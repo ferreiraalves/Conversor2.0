@@ -24,17 +24,23 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 @WebServlet("/result")
 public class S3Result extends HttpServlet {
-	private String  bucketName    = "bucketconversorsamba";
+	private String  bucketName    = "sambaconversor";
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		PrintWriter out = response.getWriter();
 		//AmazonS3 s3 = new AmazonS3Client(new ProfileCredentialsProvider());
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAILASCEM3JC53NNSA", "q3X8E4SK5VcmSCzSyfI/0Qy11Ig/17pe5nss7pvd");
+		
 		AmazonS3 s3 = AmazonS3ClientBuilder.standard()
-		                        .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-		                        .withRegion(Regions.SA_EAST_1)
-		                        .build();
+                .withCredentials(new EnvironmentVariableCredentialsProvider())
+                .withRegion(Regions.SA_EAST_1)
+                .build();
+		
+//		BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAILASCEM3JC53NNSA", "q3X8E4SK5VcmSCzSyfI/0Qy11Ig/17pe5nss7pvd");
+//		AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+//		                        .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+//		                        .withRegion(Regions.SA_EAST_1)
+//		                        .build();
 		
         
         ObjectListing listing = s3.listObjects(new ListObjectsRequest()					

@@ -65,7 +65,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 @WebServlet("/s3")
 @MultipartConfig
 public class S3Servicelet extends HttpServlet {
-	private String  bucketName    = "bucketconversorsamba";
+	private String  bucketName    = "sambaconversor";
 	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -81,11 +81,13 @@ public class S3Servicelet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		
 		//AmazonS3 s3 = new AmazonS3Client(new ProfileCredentialsProvider());
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAILASCEM3JC53NNSA", "q3X8E4SK5VcmSCzSyfI/0Qy11Ig/17pe5nss7pvd"); 
+		
+		
 		AmazonS3 s3 = AmazonS3ClientBuilder.standard()
-		                        .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-		                        .withRegion(Regions.SA_EAST_1)
-		                        .build();
+                .withCredentials(new EnvironmentVariableCredentialsProvider())
+                .withRegion(Regions.SA_EAST_1)
+                .build();
+
 																	//inicializa o client s3
 																	//ponto de melhoria: poderiamos ter usado as Profile e Enviromental credentias
 																	//para cada execução específica (local e cloud)
@@ -99,7 +101,7 @@ public class S3Servicelet extends HttpServlet {
             
             String get = "s3://" + bucketName + "/" + fileName,
             	   put = "s3://" + bucketName + "/" + fileName + ".mp4"; 		//monta as urls para requisição do zencoder
-            
+            																	//Melhoria: Tratar a st
             //System.out.println("S3 DONE");
             
             zencoderPost(get, put, out);
@@ -251,7 +253,7 @@ public class S3Servicelet extends HttpServlet {
 		out.println("    justify-content: flex-end;");
 		out.println("  }");
 		out.println("  </style>");
-		out.println("  <title>HOME</title>");
+		out.println("  <title>Concluido</title>");
 		out.println("</head>");
 		out.println("<body>");
 		out.println("  <div class=\"centeredColumn\">");
