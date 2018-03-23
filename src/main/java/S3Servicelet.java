@@ -45,8 +45,11 @@ import org.json.JSONObject;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -91,9 +94,11 @@ public class S3Servicelet extends HttpServlet {
 	
 		PrintWriter out = response.getWriter();
 		//AmazonS3 s3 = new AmazonS3Client(new ProfileCredentialsProvider());
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAILASCEM3JC53NNSA", "q3X8E4SK5VcmSCzSyfI/0Qy11Ig/17pe5nss7pvd");
 		AmazonS3 s3 = AmazonS3ClientBuilder.standard()
-                .withCredentials(new EnvironmentVariableCredentialsProvider())
-                .build();
+		                        .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+		                        .withRegion(Regions.SA_EAST_1)
+		                        .build();
 		
 		
         try {
