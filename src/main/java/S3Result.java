@@ -9,13 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.amazonaws.HttpMethod;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -73,7 +69,7 @@ public class S3Result extends HttpServlet {
 		out.println("    justify-content: flex-end;");
 		out.println("  }");
 		out.println("  </style>");
-		out.println("  <title>HOME</title>");
+		out.println("  <title>Catalogo</title>");
 		out.println("</head>");
 		out.println("<body>");
 		out.println("  <div class=\"centeredColumn\">");		
