@@ -37,8 +37,8 @@ public class S3Result extends HttpServlet {
 		                        .build();
 		
         
-        ObjectListing listing = s3.listObjects(new ListObjectsRequest()
-                .withBucketName(bucketName));
+        ObjectListing listing = s3.listObjects(new ListObjectsRequest()					
+                .withBucketName(bucketName));								//lista os objetos do bucket
         
         out.println("<!DOCTYPE html>");
 		out.println("<html>");
@@ -86,16 +86,15 @@ public class S3Result extends HttpServlet {
         expiration.setTime(msec);
         URL signed = null;
         
-		for (S3ObjectSummary objectSummary : listing.getObjectSummaries()) {
-        	if (objectSummary.getKey().contains(".mp4")) {            	
-                GeneratePresignedUrlRequest generatePresignedUrlRequest = 
+		for (S3ObjectSummary objectSummary : listing.getObjectSummaries()) {						//itera sobre os objetos do bucket
+        	if (objectSummary.getKey().contains(".mp4")) {            								//e gera as estruturas para exibição
+                GeneratePresignedUrlRequest generatePresignedUrlRequest = 							//dos vídeos
                         new GeneratePresignedUrlRequest(bucketName, objectSummary.getKey());
                 generatePresignedUrlRequest.setMethod(HttpMethod.GET); // Default.
                 generatePresignedUrlRequest.setExpiration(expiration);
                 
                 signed = s3.generatePresignedUrl(generatePresignedUrlRequest);
                 out.println("<div class=\"jumbotron\">");
-                //out.println("<iframe src=\"" + signed.toString() + "?rel=0\" style=\"border:none\"></iframe>");
                 out.println("	<video width=\"640\" height=\"360\" controls>");
                 out.println("		<source src=\""+ signed + "\" type=\"video/mp4\">") ;
                 out.println("	</video>"); 
