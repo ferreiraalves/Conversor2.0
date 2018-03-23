@@ -1,18 +1,68 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Home</title>
-  </head>
-  <body>
-    <h2>Selecione o arquivo desejado:</h2>
-    <p>Teste de conteudo</p>
-    <form action="s3" method="post" enctype="multipart/form-data">
-        Nome: <input type="text" name="nome" /><br />
-        E-mail: <input type="text" name="email" /><br />
-        Endereço: <input type="text" name="endereco" /><br />
-        Arquivo: <input type="file" name="file" /><br />
-        <input type="submit" value="Enviar" />
-    </form>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+  	.centeredColumn {
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  justify-content: center;
+	}
+	
+	a {
+	  padding: 0px 5px;
+	  text-decoration: none;
+	}
+	
+	.content {
+	  width: 80vw;
+	  margin-left: 10vw;
+	  min-height: calc(100vh - 124px);
+	}
+	.submitButton {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+	}
+  </style>
+  <script>
+  	function loading() {
+  		document.getElementById("loading").style.display = "show";
+  	}
+  </script>
+  <title>HOME</title>
+</head>
+
+<body>
+
+  <div class="centeredColumn">
+    <img src="https://sambatech.com/wp-content/themes/tema-sambatech/home-samba-play-2017/img/logo-sambatech-rodape.png" alt="logo">
+    <div class="">
+      <a href="/">Home</a>
+      <a href="/result">Catalogo</a>
+    </div>
+  </div>
+  <div class="content centeredColumn">
+    <div class="jumbotron">
+      <h1 id="title" class="display-4">Conversor Samba Tech</h1>
+      <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+      <hr class="my-4">
+      <div>
+        <form action="s3" method="post" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="fileField">Example file input</label>
+            <input type="file" name="file"class="form-control-file" id="fileField">
+            <div class="submitButton">
+            	<button type="submit" onClick="loading();" class="btn btn-primary">Enviar</button>
+            	<i id="loading" class="fa fa-circle-o-notch fa-spin" style="font-size:24px; display: none;"></i>
+           	</div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   </body>
-</html>
+ </html>

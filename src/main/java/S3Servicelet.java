@@ -11,16 +11,19 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -46,6 +49,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 
@@ -54,6 +58,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 
 @WebServlet("/s3")
+@MultipartConfig
 public class S3Servicelet extends HttpServlet {
 	private String  bucketName    = "bucketconversorsamba";
 	private String sourceKeyName  = "videosamba.dv";
@@ -70,6 +75,15 @@ public class S3Servicelet extends HttpServlet {
 //		System.out.println(request.getParameter("nome"));
 //		System.out.println("Resultado Arquivo:");
 //		System.out.println(uploadFile);
+		
+	    Part filePart = request.getPart("file"); // Retrieves <input type="file" name="file">
+	    String fileName = getSubmittedFileName(filePart);
+	    InputStream fileContent = filePart.getInputStream();
+		System.out.println(fileName);
+		ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentType(filePart.getContentType());
+		metadata.setContentLength(filePart.getSize());
+		
 
 		URL signed = null;
 	
@@ -78,19 +92,21 @@ public class S3Servicelet extends HttpServlet {
 		
         try {
             System.out.println("Uploading a new object to S3 from a file\n");
-            File file = new File(uploadFileName);
+            //File file = new File(uploadFileName);
+            File file = new File(fileName);
 //            System.out.println("teste");
             
-//          out.println("<html>");
-//    		out.println("<body>");
-//    		out.println("Request realizado com sucesso");
-//    		out.println("Loading...");
-//    		out.println("</body>");
-//    		out.println("</html>");
+            /*out.println("<html>");
+    		out.println("<body>");
+    		out.println("Request realizado com sucesso");
+    		out.println("<div id=\"esconder\">Loading...</div>");
+    		out.println("</body>");
+    		out.println("</html>");*/
     		
-    		out.flush();
-            
-            s3.putObject(new PutObjectRequest(bucketName, sourceKeyName, file));
+//	    		out.flush();
+    		s3.putObject(new PutObjectRequest(bucketName, fileName, fileContent,metadata));
+    		//s3.putObject(new PutObjectRequest(bucketName, sourceKeyName, file));
+    		
             
 //            java.util.Date expiration = new java.util.Date();
 //            long msec = expiration.getTime();
@@ -104,8 +120,8 @@ public class S3Servicelet extends HttpServlet {
                    
             
             
-            String get = "s3://" + bucketName + "/" + sourceKeyName,
-            	   put = "s3://" + bucketName + "/" + destKeyName;
+            String get = "s3://" + bucketName + "/" + fileName,
+            	   put = "s3://" + bucketName + "/" + fileName + ".mp4";
             
             System.out.println("S3 DONE");
             
@@ -136,18 +152,28 @@ public class S3Servicelet extends HttpServlet {
         expiration.setTime(msec);
      
         GeneratePresignedUrlRequest generatePresignedUrlRequest = 
-                new GeneratePresignedUrlRequest(bucketName, destKeyName);
+                new GeneratePresignedUrlRequest(bucketName, fileName + ".mp4");
         generatePresignedUrlRequest.setMethod(HttpMethod.GET); // Default.
         generatePresignedUrlRequest.setExpiration(expiration);
         signed = s3.generatePresignedUrl(generatePresignedUrlRequest);
         
-		out.println("<html>");
+        printLoadingPage(out, signed.toString());
+        
+		/*out.println("<html>");
+
+		out.println("<head>");
+		out.println("<script>");
+		out.println("document.getElementById(\"esconder\").style.display = \"none\";");
+		out.println("</script>");
+		out.println("</head>");
+		
+		
 		out.println("<body>");
         out.println("<video width=\"320\" height=\"240\" controls>");
         out.println("<source src=\""+ signed + "\" type=\"video/mp4\">") ;
         out.println("</video>"); 
 		out.println("</body>");
-		out.println("</html>");
+		out.println("</html>");*/
 		
 		out.close();
 		
@@ -226,9 +252,67 @@ public class S3Servicelet extends HttpServlet {
 		/*HttpEntity entity = response.getEntity();*/
 		checkProgress(id);		
 		
-
 	}
 	
 	
+	private static String getSubmittedFileName(Part part) {
+	    for (String cd : part.getHeader("content-disposition").split(";")) {
+	        if (cd.trim().startsWith("filename")) {
+	            String fileName = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
+	            return fileName.substring(fileName.lastIndexOf('/') + 1).substring(fileName.lastIndexOf('\\') + 1); // MSIE fix.
+	        }
+	    }
+	    return null;
+	}
+	
+	
+	private void printLoadingPage(PrintWriter out, String signed) {
+		out.println("<!DOCTYPE html>");
+		out.println("<html>");
+		out.println("<head>");
+		out.println("  <meta charset=\"utf-8\">");
+		out.println("  <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css\" integrity=\"sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm\" crossorigin=\"anonymous\">");
+		out.println("  <style>");
+		out.println("    .centeredColumn {");
+		out.println("    display: flex;");
+		out.println("    flex-direction: column;");
+		out.println("    align-items: center;");
+		out.println("    justify-content: center;");
+		out.println("  }");
+		out.println("  a {");
+		out.println("    padding: 0px 5px;");
+		out.println("    text-decoration: none;");
+		out.println("  }");
+		out.println("  .content {");
+		out.println("    width: 80vw;");
+		out.println("    margin-left: 10vw;");
+		out.println("    min-height: calc(100vh - 124px);");
+		out.println("  }");
+		out.println("  .submitButton {");
+		out.println("    display: flex;");
+		out.println("    align-items: center;");
+		out.println("    justify-content: flex-end;");
+		out.println("  }");
+		out.println("  </style>");
+		out.println("  <title>HOME</title>");
+		out.println("</head>");
+		out.println("<body>");
+		out.println("  <div class=\"centeredColumn\">");
+		out.println("    <img src=\"https://sambatech.com/wp-content/themes/tema-sambatech/home-samba-play-2017/img/logo-sambatech-rodape.png\" alt=\"logo\">");
+		out.println("    <div class=\"\">");
+		out.println("      <a href=\"/\">Home</a>");
+		out.println("      <a href=\"/result\">Catalogo</a>");
+		out.println("    </div>");
+		out.println("  </div>");
+		out.println("  <div class=\"content centeredColumn\">");
+		out.println("    <div class=\"jumbotron\">");
+		out.println("        <video width=\"640\" height=\"360\" controls>");
+		out.println("             <source src=\""+ signed + "\" type=\"video/mp4\">") ;
+		out.println("        </video>");
+		out.println("    </div>");
+		out.println("  </div>");
+		out.println("  </body>");
+		out.println(" </html>");
+	}
 
 }
