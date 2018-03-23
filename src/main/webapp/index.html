@@ -27,10 +27,16 @@
 		align-items: center;
 		justify-content: flex-end;
 	}
+	.loadingSpinner {
+		color: #ababab;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
   </style>
   <script>
   	function loading() {
-  		document.getElementById("loading").style.display = "show";
+  		document.getElementById("loading").style.display = "";
   	}
   </script>
   <title>HOME</title>
@@ -48,7 +54,7 @@
   <div class="content centeredColumn">
     <div class="jumbotron">
       <h1 id="title" class="display-4">Conversor Samba Tech</h1>
-      <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+      <p class="lead">Este é atividade prática realizada por Lucas Ferreira para o processo seletivo da Samba Tech.</p>
       <hr class="my-4">
       <div>
         <form action="s3" method="post" enctype="multipart/form-data">
@@ -56,8 +62,10 @@
             <label for="fileField">Example file input</label>
             <input type="file" name="file"class="form-control-file" id="fileField">
             <div class="submitButton">
-            	<button type="submit" onClick="loading();" class="btn btn-primary">Enviar</button>
-            	<i id="loading" class="fa fa-circle-o-notch fa-spin" style="font-size:24px; display: none;"></i>
+            	<button type="submit" onClick="loading();" class="btn btn-primary">Enviar</button>            	
+           	</div>
+           	<div class="loadingSpinner">
+           		<i id="loading" class="fa fa-circle-o-notch fa-spin" style="font-size:24px; display: none;"></i>
            	</div>
           </div>
         </form>

@@ -215,8 +215,6 @@ public class S3Servicelet extends HttpServlet {
 			System.out.println(state);
 	    	try {
 				Thread.sleep(2000);
-				out.println("<html>");
-				out.println("</html>");
 				out.flush();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
